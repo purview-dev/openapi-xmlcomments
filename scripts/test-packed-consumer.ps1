@@ -37,7 +37,8 @@ Set-StrictMode -Version Latest
 $repositoryRoot = Split-Path -Parent $PSScriptRoot
 $version = (Get-Content (Join-Path $repositoryRoot 'package.json') -Raw | ConvertFrom-Json).version
 $scratch = Join-Path ([IO.Path]::GetTempPath()) "purview-openapi-xmlcomments-packed-$([Guid]::NewGuid().ToString('N'))"
-$feed = $PackOutput ? $PackOutput : (Join-Path $scratch 'feed')
+# Absolute, because pack runs from the repository root and the consumer's nuget.config lives in the scratch folder.
+$feed = $PackOutput ? $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($PackOutput) : (Join-Path $scratch 'feed')
 $packages = Join-Path $scratch 'packages'
 $consumer = Join-Path $scratch 'consumer'
 
