@@ -1,0 +1,15 @@
+<Project>
+	<!--
+		Stops MSBuild walking up into the repository: the consumer must build from the packed package alone.
+		scripts/test-packed-consumer.ps1 also copies it out of the repository before building it.
+	-->
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<NoWarn>$(NoWarn);CS1591</NoWarn>
+		<!-- So the script can assert on the generated XML-comment cache. -->
+		<EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+	</PropertyGroup>
+</Project>

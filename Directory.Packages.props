@@ -1,0 +1,42 @@
+<Project>
+	<!-- Version Definitions -->
+	<PropertyGroup Label="MSBuild Versions">
+		<!--
+			The task assembly compiles against the MSBuild API but never ships it: the host MSBuild supplies
+			Microsoft.Build.Framework and Microsoft.Build.Utilities.Core at run time. Its assembly version is fixed at
+			15.1.0.0, so a reference to a newer package still loads in an older host as long as only long-standing API
+			(Task, ITaskItem, TaskItem, TaskLoggingHelper) is used.
+		-->
+		<MSBuildPackagesVersion>18.9.6</MSBuildPackagesVersion>
+	</PropertyGroup>
+	<PropertyGroup Label="Integration Test Consumer Versions">
+		<!--
+			The Microsoft.AspNetCore.OpenApi versions the integration tests' throwaway consumers build against, one per
+			target framework the package is proven on. They are not PackageVersion entries because no project in this
+			repository references the package: XmlComments.IntegrationTests stamps them into its generated constants.
+		-->
+		<OpenApiNet10Version>10.0.14</OpenApiNet10Version>
+		<OpenApiNet11Version>11.0.0-rc.3.26522.148</OpenApiNet11Version>
+	</PropertyGroup>
+	<PropertyGroup Label="Testing Versions">
+		<TUnitVersion>1.76.0</TUnitVersion>
+		<PurviewSkillsTestingVersion>1.2.0</PurviewSkillsTestingVersion>
+	</PropertyGroup>
+	<!-- Packages -->
+	<ItemGroup Label="MSBuild">
+		<PackageVersion Include="Microsoft.Build.Framework" Version="$(MSBuildPackagesVersion)" />
+		<PackageVersion Include="Microsoft.Build.Utilities.Core" Version="$(MSBuildPackagesVersion)" />
+	</ItemGroup>
+	<ItemGroup Label="Other">
+		<PackageVersion Include="Microsoft.SourceLink.GitHub" Version="10.0.403" />
+	</ItemGroup>
+	<ItemGroup Label="Testing">
+		<PackageVersion Include="Bogus" Version="35.6.5" />
+		<PackageVersion Include="TUnit" Version="$(TUnitVersion)" />
+		<PackageVersion Include="TUnit.Assertions" Version="$(TUnitVersion)" />
+		<PackageVersion Include="TUnit.Core" Version="$(TUnitVersion)" />
+		<PackageVersion Include="TUnit.Mocks" Version="$(TUnitVersion)" />
+		<!-- The Agent Skills conformance rule set, used by src/tests/Repository.UnitTests. -->
+		<PackageVersion Include="Purview.Skills.Testing" Version="$(PurviewSkillsTestingVersion)" />
+	</ItemGroup>
+</Project>

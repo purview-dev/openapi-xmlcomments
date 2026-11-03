@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<IsPackable>true</IsPackable>
+		<Title>Purview OpenAPI XML Comments</Title>
+		<Description>Stops the Microsoft.AspNetCore.OpenApi XML-comment source generator from failing with "An item with the same key has already been added" when the same documentation ID comes from more than one assembly, by removing duplicated members from the referenced XML documentation it reads. Keeps every other description.</Description>
+		<PackageTags>openapi;aspnetcore;xml-comments;xml-documentation;msbuild;source-generator;purview;</PackageTags>
+
+		<!--
+			An MSBuild task assembly must load in every MSBuild host: `dotnet build` (.NET) and Visual Studio (.NET
+			Framework). netstandard2.0 is the one target both accept, so the repository's net10.0/net11.0 set does not
+			apply here.
+		-->
+		<TargetFrameworks></TargetFrameworks>
+		<TargetFramework>netstandard2.0</TargetFramework>
+
+		<!--
+			A build-time package. The assembly is packed under tasks/ rather than lib/, so a consumer never compiles
+			against it or copies it to their output; DevelopmentDependency makes a consumer's PackageReference
+			PrivateAssets="all", so it never flows to the consumer's own packages either.
+		-->
+		<BuildOutputTargetFolder>tasks</BuildOutputTargetFolder>
+		<DevelopmentDependency>true</DevelopmentDependency>
+		<!--
+			The MSBuild assemblies are supplied by the host MSBuild, so the package declares no dependencies (see the
+			PackageReferences below). NU5100 is the "assembly outside lib/" warning that tasks/ is meant to raise, and
+			NU5128 is the "no lib/ for a declared framework" warning that follows from suppressing the dependencies.
+		-->
+		<SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+		<NoWarn>$(NoWarn);NU5100;NU5128</NoWarn>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<!--
+			Compile-time only. ExcludeAssets="runtime" keeps the MSBuild assemblies out of the output, because loading a
+			second copy beside the host's breaks type identity for ITask and ITaskItem.
+		-->
+		<PackageReference Include="Microsoft.Build.Framework" PrivateAssets="all" ExcludeAssets="runtime" />
+		<PackageReference Include="Microsoft.Build.Utilities.Core" PrivateAssets="all" ExcludeAssets="runtime" />
+	</ItemGroup>
+</Project>

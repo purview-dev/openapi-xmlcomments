@@ -1,0 +1,78 @@
+<Project>
+	<!--
+		Purview.OpenAPI.XmlComments
+
+		Works around the Microsoft.AspNetCore.OpenApi XML-comment generator failing with "ArgumentException: An item
+		with the same key has already been added" from its generated XmlCommentCache (dotnet/aspnetcore#67192).
+
+		The generator builds its cache with Dictionary.Add from two sources, and neither de-duplicates:
+		  1. every <member> of every XML file in AdditionalFiles - the package's GenerateAdditionalXmlFilesForOpenApi
+		     target adds the documentation file of each project reference - with no accessibility filter;
+		  2. the public, documented symbols of the project's own compilation, including other source generators'
+		     post-initialization output.
+		So a type a source generator or polyfill injects into every assembly arrives once per referenced assembly, and
+		once more from the project itself.
+
+		PurviewDeduplicateOpenAPIXmlComments (before compile) removes every occurrence of each ID that occurs more than
+		once across the documentation files in AdditionalFiles, and of each @(PurviewOpenAPIXmlCommentExclude) ID, and
+		swaps the filtered copies in. PurviewCheckOpenAPIXmlCommentOverlap (after compile) warns POAX001 for an ID still
+		documented both in the project and in a reference, which only the compiled project can reveal.
+
+		Nothing happens in a project that does not reference Microsoft.AspNetCore.OpenApi: both targets hang off its
+		GenerateAdditionalXmlFilesForOpenApi target.
+	-->
+	<UsingTask
+		TaskName="Purview.OpenAPI.XmlComments.DeduplicateOpenAPIXmlComments"
+		AssemblyFile="$(PurviewOpenAPIXmlCommentsTaskAssembly)"
+	/>
+	<UsingTask
+		TaskName="Purview.OpenAPI.XmlComments.CheckOpenAPIXmlCommentOverlap"
+		AssemblyFile="$(PurviewOpenAPIXmlCommentsTaskAssembly)"
+	/>
+
+	<Target
+		Name="PurviewDeduplicateOpenAPIXmlComments"
+		AfterTargets="GenerateAdditionalXmlFilesForOpenApi"
+		Condition="'$(PurviewOpenAPIXmlCommentDeduplication)' == 'true'"
+	>
+		<PropertyGroup>
+			<!--
+				Resolved here rather than at evaluation: IntermediateOutputPath is set by the common targets, so it is
+				empty while this package's props and targets are evaluated, and the task would resolve a relative path
+				against the MSBuild process's working directory rather than the project.
+			-->
+			<_PurviewOpenAPIXmlCommentsOutputPath>$([MSBuild]::NormalizeDirectory('$(MSBuildProjectDirectory)', '$(IntermediateOutputPath)', 'purview-openapi-xml'))</_PurviewOpenAPIXmlCommentsOutputPath>
+		</PropertyGroup>
+		<ItemGroup>
+			<_PurviewOpenAPIXmlCommentCandidate Include="@(AdditionalFiles)" Condition="'%(Extension)' == '.xml'" />
+		</ItemGroup>
+
+		<DeduplicateOpenAPIXmlComments
+			Condition="'@(_PurviewOpenAPIXmlCommentCandidate)' != ''"
+			Files="@(_PurviewOpenAPIXmlCommentCandidate)"
+			Exclude="@(PurviewOpenAPIXmlCommentExclude)"
+			OutputDirectory="$(_PurviewOpenAPIXmlCommentsOutputPath)"
+		>
+			<Output TaskParameter="Replaced" ItemName="_PurviewOpenAPIXmlCommentReplaced" />
+			<Output TaskParameter="Replacements" ItemName="_PurviewOpenAPIXmlCommentReplacement" />
+		</DeduplicateOpenAPIXmlComments>
+
+		<ItemGroup>
+			<AdditionalFiles Remove="@(_PurviewOpenAPIXmlCommentReplaced)" />
+			<AdditionalFiles Include="@(_PurviewOpenAPIXmlCommentReplacement)" />
+			<FileWrites Include="@(_PurviewOpenAPIXmlCommentReplacement)" />
+			<_PurviewOpenAPIXmlCommentReferenceDoc Include="@(AdditionalFiles)" Condition="'%(Extension)' == '.xml'" />
+		</ItemGroup>
+	</Target>
+
+	<Target
+		Name="PurviewCheckOpenAPIXmlCommentOverlap"
+		AfterTargets="CoreCompile"
+		Condition="'$(PurviewOpenAPIXmlCommentDeduplication)' == 'true' AND '@(_PurviewOpenAPIXmlCommentReferenceDoc)' != '' AND '@(DocFileItem)' != ''"
+	>
+		<CheckOpenAPIXmlCommentOverlap
+			ProjectDocumentation="@(DocFileItem->'%(FullPath)')"
+			ReferenceDocumentation="@(_PurviewOpenAPIXmlCommentReferenceDoc)"
+		/>
+	</Target>
+</Project>

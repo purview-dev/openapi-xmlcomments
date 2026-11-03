@@ -1,0 +1,47 @@
+{
+	"Build": {
+		"Solution": "src/XmlComments.slnx",
+		"TestRoot": "src/tests",
+		"TestPatterns": "*Tests.csproj",
+		"TestProjects": "*Tests*",
+		// Every tier: the unit tests and the integration tests, which build and run throwaway consumers against the real
+		// OpenAPI XML-comment generator. The integration tier is the only proof the targets work, so it is not optional.
+		"TestFilter": "/*/*/*/*"
+	},
+	"PackValidation": {
+		// Explicit because Purview.Build 0.5.3 defaults RequiredCompilerFlags to empty.
+		"RequiredCompilerFlags": [
+			"optimization=release"
+		],
+		// The PDB ships in the symbol package, not the .nupkg, matching the other purview-dev repositories.
+		"RequireSymbolPackage": false,
+		// RequireExplicitContent defaults to true, so this is the exhaustive declaration of what the package ships: an
+		// entry matching none of these globs fails.
+		"RequiredContent": {
+			"purview.openapi.xmlcomments": [
+				"README.md",
+				"buildTransitive/Purview.OpenAPI.XmlComments.props",
+				"buildTransitive/Purview.OpenAPI.XmlComments.targets",
+				"purview-logo-light.png",
+				"tasks/netstandard2.0/Purview.OpenAPI.XmlComments.dll",
+				"tasks/netstandard2.0/Purview.OpenAPI.XmlComments.xml"
+			]
+		},
+		// Every package ("*"). These hold even if a RequiredContent glob is ever widened.
+		"ForbiddenContent": {
+			"*": [
+				// A build-time package: under lib/ or ref/ every consumer would compile against the task assembly and copy
+				// it to their output.
+				"lib/**",
+				"ref/**",
+				"runtimes/**",
+				// The host MSBuild supplies its own assemblies; a packed copy beside the task breaks type identity for
+				// ITask and ITaskItem when MSBuild loads it.
+				"**/Microsoft.Build*"
+			]
+		}
+	},
+	"Release": {
+		"Mode": "None"
+	}
+}

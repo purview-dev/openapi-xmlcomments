@@ -1,0 +1,18 @@
+<Project>
+	<!--
+		Purview.OpenAPI.XmlComments: defaults.
+
+		Imported before the project body, so a value set in the project or in Directory.Build.props wins.
+
+		  <PurviewOpenAPIXmlCommentDeduplication>false</PurviewOpenAPIXmlCommentDeduplication>   turn it off
+		  <PurviewOpenAPIXmlCommentExclude Include="T:Some.Type" />                             always drop an ID
+	-->
+	<PropertyGroup>
+		<PurviewOpenAPIXmlCommentDeduplication Condition="'$(PurviewOpenAPIXmlCommentDeduplication)' == ''"
+			>true</PurviewOpenAPIXmlCommentDeduplication>
+
+		<!-- The task assembly shipped beside this file. Overridable so the repository's tests can point at a build. -->
+		<PurviewOpenAPIXmlCommentsTaskAssembly Condition="'$(PurviewOpenAPIXmlCommentsTaskAssembly)' == ''"
+			>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)../tasks/netstandard2.0/Purview.OpenAPI.XmlComments.dll'))</PurviewOpenAPIXmlCommentsTaskAssembly>
+	</PropertyGroup>
+</Project>

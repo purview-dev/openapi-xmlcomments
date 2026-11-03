@@ -1,0 +1,12 @@
+<Project>
+	<Import Sdk="Purview.BuildSdk" Project="Sdk.targets" />
+
+	<!--
+		NuGet package validation. Enabled for every packable project so an unintended change to the public API fails
+		`dotnet pack` instead of shipping. There is no baseline yet: set PackageValidationBaselineVersion to the first
+		stable release once it ships.
+	-->
+	<PropertyGroup Label="NuGet package validation" Condition="'$(IsPackable)' == 'true'">
+		<EnablePackageValidation>true</EnablePackageValidation>
+	</PropertyGroup>
+</Project>
