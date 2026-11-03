@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<!--
+		These tests build and run throwaway consumer solutions with the real OpenAPI XML-comment generator, importing the
+		package's buildTransitive props and targets from source and the task assembly this project references. The
+		consumers' own target framework is chosen per test, so this project does not need to run on both.
+	-->
+	<PropertyGroup>
+		<TargetFrameworks></TargetFrameworks>
+		<TargetFramework>net10.0</TargetFramework>
+	</PropertyGroup>
+
+	<!--
+		Emits the package's source Sdk/ directory, the skill's diagnostic script and the Microsoft.AspNetCore.OpenApi
+		versions from Directory.Packages.props as compile-time constants, so a consumer is built and diagnosed against
+		exactly what is in source.
+	-->
+	<Target Name="WriteConsumerConstants" BeforeTargets="BeforeCompile">
+		<PropertyGroup>
+			<_SdkDirectory>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)../../src/XmlComments/Sdk').Replace('\', '/'))</_SdkDirectory>
+			<_SkillScript>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)../../../skills/purview-openapi-xmlcomments-duplicates/scripts/find-duplicate-documentation-ids.ps1').Replace('\', '/'))</_SkillScript>
+			<_ConsumerConstantsFile>$(IntermediateOutputPath)Generated/ConsumerConstants.cs</_ConsumerConstantsFile>
+		</PropertyGroup>
+		<MakeDir Directories="$(IntermediateOutputPath)Generated" />
+		<WriteLinesToFile
+			File="$(_ConsumerConstantsFile)"
+			Lines="// &lt;auto-generated /&gt;
+
+namespace $(RootNamespace)%3B;
+
+static class ConsumerConstants
+{
+	public const string SdkDirectory = &quot;$(_SdkDirectory)&quot;%3B;
+	public const string SkillScript = &quot;$(_SkillScript)&quot;%3B;
+	public const string OpenAPINet10Version = &quot;$(OpenApiNet10Version)&quot;%3B;
+	public const string OpenAPINet11Version = &quot;$(OpenApiNet11Version)&quot;%3B;
+}
+"
+			Overwrite="true"
+			WriteOnlyWhenDifferent="true"
+		/>
+		<ItemGroup>
+			<Compile Include="$(_ConsumerConstantsFile)" />
+		</ItemGroup>
+	</Target>
+</Project>

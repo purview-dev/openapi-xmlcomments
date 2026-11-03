@@ -1,0 +1,48 @@
+name: PR
+
+on:
+  pull_request:
+    branches: [main]
+    # `ready_for_review` is not one of the default activity types, so a draft PR would never
+    # re-evaluate the required build gate once it is marked ready for review.
+    types: [opened, synchronize, reopened, ready_for_review]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build and test
+    uses: purview-dev/build/.github/workflows/purview-build.yml@main
+    with:
+      # The shared workflow defaults to the 10.0.x SDK, but this repository pins the .NET 11 SDK in
+      # global.json (the tests run on net10.0 and net11.0). Without the matching SDK the runner cannot
+      # resolve global.json and every step fails.
+      # Keep in sync with `sdk.version` in global.json.
+      dotnet-version: "11.0.100-rc.3.26522.148"
+      # Mirrors Build:TestFilter in purview-build.json: the unit tests and the integration tests, which
+      # build and run throwaway consumers against the real OpenAPI XML-comment generator.
+      test-filter: "/*/*/*/*"
+      run-pack: true
+      validate-pack: true
+    secrets: inherit
+
+  # Every other job builds against the source props, targets and task assembly; this one builds what ships. It packs
+  # the package to an isolated feed and package cache, then builds and runs scripts/packed-consumer against it through
+  # PackageReference alone. `just smoke-packed-consumer` runs the same locally.
+  packed-consumer:
+    name: Packed consumer
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      # The SDK from global.json, plus the .NET 10 runtime the consumer runs on.
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+          dotnet-version: 10.0.x
+
+      - name: Pack, then build and run a consumer of the package
+        shell: pwsh
+        run: ./scripts/test-packed-consumer.ps1 -PackOutput artifacts/packed

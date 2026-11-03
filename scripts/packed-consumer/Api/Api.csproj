@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+	<ItemGroup>
+		<!-- The version under test is passed in by scripts/test-packed-consumer.ps1. -->
+		<PackageReference
+			Include="Purview.OpenAPI.XmlComments"
+			Version="$(PurviewOpenAPIXmlCommentsVersion)"
+			PrivateAssets="all"
+		/>
+		<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.14" />
+		<ProjectReference Include="../Lib.A/Lib.A.csproj" />
+		<ProjectReference Include="../Lib.B/Lib.B.csproj" />
+		<Compile Include="../Ambient.cs" />
+	</ItemGroup>
+</Project>

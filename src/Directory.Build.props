@@ -1,0 +1,63 @@
+<Project>
+	<PropertyGroup>
+		<NamespacePrefix>Purview.OpenAPI</NamespacePrefix>
+		<RepositoryUrl>https://github.com/purview-dev/openapi-xmlcomments</RepositoryUrl>
+
+		<!--
+			.NET 10 and .NET 11, Purview.BuildSdk's 'Supported' set. Only the tests use it: the shipped task assembly
+			targets netstandard2.0 (see XmlComments.csproj), so it loads in every MSBuild host, including Visual Studio's
+			.NET Framework one.
+		-->
+		<PurviewTargetFrameworkSet>Supported</PurviewTargetFrameworkSet>
+
+		<!--
+			Installed skills live in the universal .agents/skills/ folder only. The SDK's default (*) would make
+			InstallPurviewSkills write a copy into every agent's folder.
+		-->
+		<PurviewSkillsAgents>universal</PurviewSkillsAgents>
+
+		<!--
+			An MSBuild task package has no host to report telemetry from, so the SDK's telemetry defaults are excluded
+			repo-wide.
+		-->
+		<ExcludePurviewTelemetry>true</ExcludePurviewTelemetry>
+		<ExcludeMSTelemetryExtension>true</ExcludeMSTelemetryExtension>
+	</PropertyGroup>
+
+	<Import Sdk="Purview.BuildSdk" Project="Sdk.props" />
+
+	<!--
+		Package metadata lives after the SDK import so it can use SDK-provided values such as $(CurrentYear). Each
+		packable project opts in with <IsPackable>true</IsPackable> in its own project file, because the SDK reads that
+		declaration from the project file text.
+	-->
+	<PropertyGroup Label="Purview site URL metadata">
+		<PurviewHomepage>https://purview.dev/</PurviewHomepage>
+		<PurviewProjectUrl>$(PurviewHomepage)projects/openapi-xmlcomments/</PurviewProjectUrl>
+		<PurviewDocsUrl>$(PurviewHomepage)docs/openapi-xmlcomments/</PurviewDocsUrl>
+	</PropertyGroup>
+
+	<PropertyGroup Label="NuGet package metadata">
+		<Authors>Kieron Lanning</Authors>
+		<Company>Purview-Dev</Company>
+		<Copyright>Copyright © $(CurrentYear) Purview-Dev</Copyright>
+		<PackageProjectUrl>$(PurviewProjectUrl)</PackageProjectUrl>
+		<RepositoryType>git</RepositoryType>
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<PackageIcon>purview-logo-light.png</PackageIcon>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+	</PropertyGroup>
+
+	<!--
+		The package icon is packed at the package root (the SDK's Sdk/ convention), so the same asset is reused by every
+		packable project without duplicating it in each project folder.
+	-->
+	<ItemGroup Label="NuGet package assets" Condition="'$(IsPackable)' == 'true'">
+		<None
+			Include="$(MSBuildThisFileDirectory)../assets/images/purview-logo-light.png"
+			Link="Sdk\purview-logo-light.png"
+		/>
+	</ItemGroup>
+</Project>

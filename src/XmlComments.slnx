@@ -1,0 +1,21 @@
+<Solution>
+	<Folder Name="/Solution Items/">
+		<File Path="../.config/purview-build.json" />
+		<File Path="../.editorconfig" />
+		<File Path="../Directory.Packages.props" />
+		<File Path="../global.json" />
+		<File Path="../Justfile" />
+		<File Path="../nuget.config" />
+		<File Path="../package.json" />
+		<File Path="Directory.Build.props" />
+		<File Path="Directory.Build.targets" />
+	</Folder>
+	<Folder Name="/src/">
+		<Project Path="src/XmlComments/XmlComments.csproj" />
+	</Folder>
+	<Folder Name="/tests/">
+		<Project Path="tests/Repository.UnitTests/Repository.UnitTests.csproj" />
+		<Project Path="tests/XmlComments.IntegrationTests/XmlComments.IntegrationTests.csproj" />
+		<Project Path="tests/XmlComments.UnitTests/XmlComments.UnitTests.csproj" />
+	</Folder>
+</Solution>
