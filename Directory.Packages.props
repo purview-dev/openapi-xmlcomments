@@ -15,12 +15,12 @@
 			target framework the package is proven on. They are not PackageVersion entries because no project in this
 			repository references the package: XmlComments.IntegrationTests stamps them into its generated constants.
 		-->
-		<OpenApiNet10Version>10.0.14</OpenApiNet10Version>
-		<OpenApiNet11Version>11.0.0-rc.3.26522.148</OpenApiNet11Version>
+		<OpenApiNet10Version>10.0.15</OpenApiNet10Version>
+		<OpenApiNet11Version>11.0.0</OpenApiNet11Version>
 	</PropertyGroup>
 	<PropertyGroup Label="Testing Versions">
-		<TUnitVersion>1.76.0</TUnitVersion>
-		<PurviewSkillsTestingVersion>1.2.0</PurviewSkillsTestingVersion>
+		<TUnitVersion>1.83.0</TUnitVersion>
+		<PurviewSkillsTestingVersion>2.1.0</PurviewSkillsTestingVersion>
 	</PropertyGroup>
 	<!-- Packages -->
 	<ItemGroup Label="MSBuild">
@@ -28,7 +28,7 @@
 		<PackageVersion Include="Microsoft.Build.Utilities.Core" Version="$(MSBuildPackagesVersion)" />
 	</ItemGroup>
 	<ItemGroup Label="Other">
-		<PackageVersion Include="Microsoft.SourceLink.GitHub" Version="10.0.403" />
+		<PackageVersion Include="Microsoft.SourceLink.GitHub" Version="11.0.100" />
 	</ItemGroup>
 	<ItemGroup Label="Testing">
 		<PackageVersion Include="Bogus" Version="35.6.5" />
