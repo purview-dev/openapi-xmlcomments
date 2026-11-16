@@ -7,6 +7,8 @@ An MSBuild package that stops the `Microsoft.AspNetCore.OpenApi` XML-comment sou
 `ArgumentException: An item with the same key has already been added` when the same documentation ID comes from more
 than one assembly - without turning the generator off, so every XML description stays in your OpenAPI document.
 
+**Documentation:** [OpenAPI XML Comments documentation](https://purview.dev/docs/openapi-xmlcomments/)
+
 ## Packages
 
 | Package | Purpose | Targets |
